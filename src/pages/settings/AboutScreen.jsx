@@ -19,7 +19,7 @@ const AboutScreen = () => {
       </View>
       <View style={styles.section}>
         <Text style={styles.title}>Destek Maili</Text>
-        <Text style={styles.text}>fthbck0@gmail.com</Text>
+        <Text style={styles.text}>support@fitcep.com</Text>
       </View>
     </ScrollView>
   );
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   section: {
-    marginBottom: 20,
+    marginBottom: 40,
   },
   title: {
     fontSize: 20,

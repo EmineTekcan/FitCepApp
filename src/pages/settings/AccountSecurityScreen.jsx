@@ -1,14 +1,53 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react';
+import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { auth } from '../../../config/FirebaseConfig';
+import {sendPasswordResetEmail } from "firebase/auth";
 
-const AccountSecurityScreen = () => {
+const ChangePassword = () => {
+  const [email, setEmail] = useState('');
+  const handleChangePassword = () => {
+    sendPasswordResetEmail(auth, email)
+      .then(() => {
+        Alert.alert('Success', 'Password reset email sent.');
+      }).catch((error) => {
+        Alert.alert('Error', error.message);
+      });
+  };
+
   return (
-    <View>
-      <Text>AccountSecurityScreen</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Change Password</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+      />
+      <Button title="Send Password Reset Email" onPress={handleChangePassword} />
     </View>
-  )
-}
+  );
+};
 
-export default AccountSecurityScreen
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 20,
+  },
+  input: {
+    width: '100%',
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+  },
+});
 
-const styles = StyleSheet.create({})
+export default ChangePassword;
