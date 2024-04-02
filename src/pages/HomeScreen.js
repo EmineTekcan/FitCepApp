@@ -7,7 +7,7 @@ import {
   Pressable,
   Modal,
 } from "react-native";
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Entypo } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
@@ -16,8 +16,6 @@ import {
   addComment,
   addLike,
   checkIfUserLikedPost,
-  getPostsAndUserData,
-  getPostsWithUserDetails,
   unlikePost,
 } from "../services/firebase/Post";
 import { onAuthStateChanged } from "firebase/auth";
@@ -30,6 +28,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  onSnapshot,
   orderBy,
   query,
 } from "firebase/firestore";
@@ -39,12 +38,10 @@ const HomeScreen = () => {
   const [userId, setUserId] = useState(null);
   const [displayName, setDisplayName] = useState("");
   const [isCommentModalVisible, setIsCommentModalVisible] = useState(false);
-  const [selectedPostId, setSelectedPostId] = useState(null);
   const [comment, setComment] = useState("");
   const [allCommentsVisible, setAllCommentsVisible] = useState(false);
 
   const openCommentModal = (postId) => {
-    setSelectedPostId(postId);
     setIsCommentModalVisible(true);
   };
 
@@ -52,27 +49,31 @@ const HomeScreen = () => {
     addComment(postId, userId, displayName, comment);
   };
 
-  useLayoutEffect(() => {
-    const fetchPostsAndCheckLikes = async () => {
-      if (!userId) return;
+  const fetchPostsAndCheckLikes = async () => {
+    if (!userId) return;
 
-      const postsCollectionRef = query(
-        collection(firestore, "posts"),
-        orderBy("createdAt", "desc")
-      );
+    const postsCollectionRef = query(
+      collection(firestore, "posts"),
+      orderBy("createdAt", "desc")
+    );
+
+    try {
       const querySnapshot = await getDocs(postsCollectionRef);
       const posts = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
 
-      // Her post için kullanıcı detaylarını çek
       const postsWithUserDetails = await Promise.all(
         posts.map(async (post) => {
-          const userRef = doc(firestore, "users", post.userId); // "users" koleksiyonunu ve postun userId'sini kullan
+          const userRef = doc(firestore, "users", post.userId);
           const userSnap = await getDoc(userRef);
+          if (!userSnap.exists()) {
+            console.log("No such user!");
+            return post; // or handle this case as you see fit
+          }
           const userData = userSnap.data();
-          return { ...post, ...userData }; // Posta kullanıcı detaylarını ekle
+          return { ...post, ...userData };
         })
       );
 
@@ -82,11 +83,16 @@ const HomeScreen = () => {
           return { ...post, isUserLiked };
         })
       );
-      setPosts(postsWithLikeStatus);
-    };
 
+      setPosts(postsWithLikeStatus);
+    } catch (error) {
+      console.error("Error fetching posts: ", error);
+    }
+  };
+
+  useEffect(() => {
     fetchPostsAndCheckLikes();
-  }, [userId,posts]);
+  }, []);
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -146,7 +152,7 @@ const HomeScreen = () => {
             <View className="bg-white flex rounded-md mt-4 p-2 space-y-2 pb-3">
               <View className="flex flex-row items-center justify-between">
                 <View className="flex flex-row gap-2 items-center">
-                  {item.photoUrl !== null ? (
+                  {item.profilePicture !== null ? (
                     <Image
                       className="w-14 h-14 rounded-full"
                       source={{ uri: item.profilePicture }}
@@ -219,7 +225,7 @@ const HomeScreen = () => {
                 ) : (
                   <Pressable
                     onPress={() => setAllCommentsVisible(!allCommentsVisible)}
-                    className="flex px-1"
+                    className="flex"
                   >
                     <Text className="text-gray-500">
                       {" "}

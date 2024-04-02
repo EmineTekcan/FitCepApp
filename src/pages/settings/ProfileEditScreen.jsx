@@ -92,9 +92,12 @@ const ProfileEditScreen = () => {
       const firestore = getFirestore();
       const userDocRef = doc(firestore, "users", userId);
       await updateDoc(userDocRef, {
-        profilePicture: downloadURL
+        profilePicture: downloadURL,
       });
       console.log("User profile updated with profile picture URL");
+  
+      // Profil fotoğrafı URL'sini state'e güncelle
+      setPhotoUrl(downloadURL); // Bu satır eklenmeli
     } catch (error) {
       console.error("Upload failed", error);
     }

@@ -3,11 +3,11 @@ import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from "../pages/LoginScreen";
 import RegisterScreen from "../pages/RegisterScreen";
 import BottomNavigation from "./BottomNavigation";
-import SearchScreen from '../pages/SearchScreen'
+import SearchScreen from "../pages/SearchScreen";
 import MessagesScreen from "../pages/MessagesScreen";
 import MessageScreen from "../pages/MessageScreen";
-import SettingsScreen from '../pages/SettingsScreen'
-import { onAuthStateChanged } from 'firebase/auth'
+import SettingsScreen from "../pages/SettingsScreen";
+import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../config/FirebaseConfig";
 import AboutScreen from "../pages/settings/AboutScreen";
 import AccountSecurityScreen from "../pages/settings/AccountSecurityScreen";
@@ -17,6 +17,8 @@ import ProfileEditScreen from "../pages/settings/ProfileEditScreen";
 import PostScreen from "../pages/PostScreen";
 import ToDoScreen from "../utils/ToDoScreen";
 import Chat from "../components/Chat";
+import UserScreen from "../pages/UserScreen";
+import { colors } from "../utils/consts";
 
 const Stack = createStackNavigator();
 
@@ -28,7 +30,6 @@ const Stack = createStackNavigator();
 //     </Stack.Navigator>
 //   );
 // }
-
 
 const RootNavigation = () => {
   const [isLogged, setIsLogged] = useState(false);
@@ -53,8 +54,17 @@ const RootNavigation = () => {
             component={BottomNavigation}
           />
           <Stack.Screen name="SearchScreen" component={SearchScreen} />
+          <Stack.Screen
+          options={{
+            headerStyle:{
+              backgroundColor:colors["bottom-icon-color"],
+            },
+            headerTitle:"",
+          }}
+           name="UserScreen"
+            component={UserScreen} />
           <Stack.Screen name="PostScreen" component={PostScreen} />
-          
+
           <Stack.Screen
             name="MessagesScreen"
             options={{
@@ -64,11 +74,8 @@ const RootNavigation = () => {
             }}
             component={MessagesScreen}
           />
-          <Stack.Screen
-            name="MessageScreen"
-            component={MessageScreen}
-          />
-          <Stack.Screen name='Chat' component={Chat} />
+          <Stack.Screen name="MessageScreen" component={MessageScreen} />
+          <Stack.Screen name="Chat" component={Chat} />
           <Stack.Screen
             options={{
               headerTitle: "Ayarlar",
@@ -79,7 +86,7 @@ const RootNavigation = () => {
           <Stack.Screen
             options={{
               headerTitle: "Hakkında",
-              headerTitleAlign: "center"
+              headerTitleAlign: "center",
             }}
             name="AboutScreen"
             component={AboutScreen}
@@ -87,7 +94,7 @@ const RootNavigation = () => {
           <Stack.Screen
             options={{
               headerTitle: "Şifre ve güvenlik",
-              headerTitleAlign: "center"
+              headerTitleAlign: "center",
             }}
             name="AccountSecurityScreen"
             component={AccountSecurityScreen}
@@ -95,7 +102,7 @@ const RootNavigation = () => {
           <Stack.Screen
             options={{
               headerTitle: "Yardım",
-              headerTitleAlign: "center"
+              headerTitleAlign: "center",
             }}
             name="HelpScreen"
             component={HelpScreen}
@@ -103,7 +110,7 @@ const RootNavigation = () => {
           <Stack.Screen
             options={{
               headerTitle: "Bildirimler",
-              headerTitleAlign: "center"
+              headerTitleAlign: "center",
             }}
             name="NotificationSettingsScreen"
             component={NotificationSettingsScreen}
@@ -111,7 +118,7 @@ const RootNavigation = () => {
           <Stack.Screen
             options={{
               headerTitle: "Profil",
-              headerTitleAlign: "center"
+              headerTitleAlign: "center",
             }}
             name="ProfileEditScreen"
             component={ProfileEditScreen}
@@ -139,6 +146,5 @@ const RootNavigation = () => {
     </Stack.Navigator>
   );
 };
-
 
 export default RootNavigation;

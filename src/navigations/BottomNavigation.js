@@ -4,6 +4,7 @@ import NotificationScreen from "../pages/NotificationScreen";
 import PostScreen from "../pages/PostScreen";
 import ProfileScreen from "../pages/ProfileScreen";
 import ProgressScreen from "../pages/ProgressScreen";
+import TodoPage from '../pages/TodoPage'
 
 import { Text, View, Pressable } from "react-native";
 import { colors } from "../utils/consts";
@@ -68,8 +69,8 @@ const BottomNavigation = () => {
         }}
       />
       <Tab.Screen
-        name="ProgressScreen"
-        component={ProgressScreen}
+        name="TodoPage"
+        component={TodoPage}
         options={{
           title: "Progress",
           tabBarIcon: ({ focused, color }) =>

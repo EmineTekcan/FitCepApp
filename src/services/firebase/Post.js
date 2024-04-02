@@ -13,6 +13,19 @@ import {
 } from "firebase/firestore";
 import { firestore } from "../../../config/FirebaseConfig";
 
+const fetchUserPosts = async (userId) => {
+  const q = query(collection(firestore, "posts"), where("userId", "==", userId));
+
+  const querySnapshot = await getDocs(q);
+  const posts = [];
+  querySnapshot.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    posts.push({ id: doc.id, ...doc.data() });
+  });
+
+  return posts;
+};
+
 const postGonderi = async (
   userId,
   description,
@@ -156,6 +169,7 @@ export {
   checkIfUserLikedPost,
   addComment,
   deleteComment,
+  fetchUserPosts
 };
 
 
