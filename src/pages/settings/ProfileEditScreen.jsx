@@ -21,6 +21,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth, firestore } from "../../../config/FirebaseConfig";
 import { AntDesign } from "@expo/vector-icons";
 import { doc, getDoc, getFirestore, updateDoc } from "firebase/firestore";
+import { useNavigation } from "@react-navigation/native";
 
 const ProfileEditScreen = () => {
   const [userId, setUserId] = useState(null);
@@ -28,7 +29,8 @@ const ProfileEditScreen = () => {
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  
+
+  const navigation = useNavigation();
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -53,7 +55,7 @@ const ProfileEditScreen = () => {
     const fileName = `userProfilePictures/${userId}.jpg`;
     const storage = getStorage();
     const storageRef = ref(storage, fileName); // Kısa yol fonksiyonu `ref` kullanıldı
-  
+
     // İlk olarak, var olan dosyanın URL'sini almayı dene
     getDownloadURL(storageRef)
       .then(() => {
@@ -76,18 +78,18 @@ const ProfileEditScreen = () => {
         }
       });
   };
-  
+
   const uploadFile = async (uri, storageRef, userId) => {
     try {
       const response = await fetch(uri);
       const blob = await response.blob();
-  
+
       const snapshot = await uploadBytes(storageRef, blob);
       console.log("Uploaded a blob or file!");
-  
+
       // Dosya başarıyla yüklendikten sonra indirme URL'sini al
       const downloadURL = await getDownloadURL(snapshot.ref);
-  
+
       // Firestore'da kullanıcı profilini güncelle
       const firestore = getFirestore();
       const userDocRef = doc(firestore, "users", userId);
@@ -95,7 +97,7 @@ const ProfileEditScreen = () => {
         profilePicture: downloadURL,
       });
       console.log("User profile updated with profile picture URL");
-  
+
       // Profil fotoğrafı URL'sini state'e güncelle
       setPhotoUrl(downloadURL); // Bu satır eklenmeli
     } catch (error) {
@@ -126,7 +128,7 @@ const ProfileEditScreen = () => {
         console.log("kullanıcı bulunamadı");
       }
     });
-  }, [userId,photoUrl]);
+  }, [userId, photoUrl]);
 
   const getUserDetailsByUid = async (uid) => {
     try {
@@ -147,7 +149,6 @@ const ProfileEditScreen = () => {
     }
   };
 
-
   const updateProfile = async () => {
     const docRef = doc(firestore, "users", userId);
 
@@ -160,6 +161,7 @@ const ProfileEditScreen = () => {
         email: email,
       }).then(() => {
         console.log("profil basariyla güncellendi");
+        navigation.navigate("ProfileScreen");
       });
     } else {
       console.log("No such document!");

@@ -72,12 +72,12 @@ const PostScreen = () => {
   };
 
   const createPost = async () => {
-    if (image) {
+    if (image && description) {
       const imagePath = `postImages/${userId}_${new Date().toISOString()}.jpg`;
       const uploadedImageUrl = await uploadImage(image, imagePath);
       postGonderi(userId, description, uploadedImageUrl);
     } else {
-      postGonderi(userId, description, null);
+      console.log("Fotograf veya açıklama yazılmadı")
     }
     navigation.navigate("HomeScreen");
   };

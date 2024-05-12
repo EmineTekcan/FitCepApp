@@ -22,7 +22,6 @@ import {
   getFollowingCount,
   getFollowingList,
 } from "../services/firebase/Follow";
-import FollowListModal from "../modals/FollowerListModal";
 import FollowingListModal from "../modals/FollowingListModal";
 import FollowerListModal from "../modals/FollowerListModal";
 
@@ -41,47 +40,39 @@ const ProfileScreen = () => {
     useState(false);
   const [followersListModalVisible, setFollowersListModalVisible] =
     useState(false);
-  const [followingList, setFollowingList] = useState([]);
-  const [followerList, setFollowerLİst] = useState([]);
+  const [followingList, setFollowingList] = useState(null);
+  const [followerList, setFollowerLİst] = useState(null);
 
   const openModal = (post) => {
     setSelectedPost(post);
     setModalVisible(true);
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      if (userId) {
-        getUserDetailsByUid(userId);
-      }
-    }, [userId])
-  );
+  const getPosts = async () => {
+    if (userId) {
+      const posts = await fetchUserPosts(userId);
+      setUserPosts(posts);
+    }
+  };
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setUserId(user?.uid);
         getUserDetailsByUid(user?.uid);
+        getPosts();
       } else {
         console.log("kullanıcı bulunamadı");
       }
     });
-    if (userId) {
-      const getPosts = async () => {
-        const posts = await fetchUserPosts(userId);
-        setUserPosts(posts);
-      };
-
-      getPosts();
-    }
   }, [userId]);
 
   const getUserDetailsByUid = async (uid) => {
     try {
       const docRef = doc(firestore, "users", uid);
       const docSnap = await getDoc(docRef);
-      const followingCount = await getFollowingCount(userId);
-      const followersCount = await getFollowersCount(userId);
+      const followingCount = await getFollowingCount(uid);
+      const followersCount = await getFollowersCount(uid);
       setFollowing(followingCount);
       setFollowers(followersCount);
       if (docSnap.exists()) {
@@ -94,13 +85,19 @@ const ProfileScreen = () => {
       }
     } catch (error) {
       console.error("Kullanıcı bilgileri alınırken bir hata oluştu:", error);
+    } finally {
+      setRefreshing(false);
     }
   };
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
-    getUserDetailsByUid(userId);
-    setRefreshing(false); // Bu satır, gerçek veri yüklemesi tamamlandıktan sonra çağrılmalıdır
+    if (userId !== null) {
+      getUserDetailsByUid(userId);
+      getPosts();
+      console.log("merhaba");
+    }
+    setRefreshing(false);
   }, []);
 
   const renderItem = ({ item }) => (
@@ -139,7 +136,7 @@ const ProfileScreen = () => {
           }}
           className="-top-8"
         >
-          {photoUrl !== undefined ? (
+          {photoUrl !== undefined && photoUrl !== null ? (
             <Image
               source={{ uri: photoUrl }}
               alt="profile"
@@ -179,31 +176,38 @@ const ProfileScreen = () => {
 
         <FlatList
           style={{ padding: 5 }}
-          data={userPosts}
+          data={userPosts.filter((item) => item)}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item?.id}
           numColumns={2}
           scrollEnabled={false}
         />
       </View>
-      <PostModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        post={selectedPost}
-        fullName={fullName}
-        profilePicture={photoUrl}
-      />
-      <FollowingListModal
-        onClose={() => setFollowingListModalVisible(false)}
-        visible={followingListModalVisible}
-        users={followingList}
-      />
-      <FollowerListModal
-        authUserId={userId}
-        onClose={() => setFollowersListModalVisible(false)}
-        visible={followersListModalVisible}
-        users={followerList}
-      />
+      {photoUrl !== null && photoUrl !== undefined && (
+        <PostModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          post={selectedPost}
+          fullName={fullName}
+          profilePicture={photoUrl}
+        />
+      )}
+
+      {followingList !== null && (
+        <FollowingListModal
+          onClose={() => setFollowingListModalVisible(false)}
+          visible={followingListModalVisible}
+          users={followingList}
+        />
+      )}
+      {followerList !== null && (
+        <FollowerListModal
+          authUserId={userId}
+          onClose={() => setFollowersListModalVisible(false)}
+          visible={followersListModalVisible}
+          users={followerList}
+        />
+      )}
     </ScrollView>
   );
 };

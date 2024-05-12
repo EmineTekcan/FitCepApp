@@ -40,6 +40,7 @@ const HomeScreen = () => {
   const [isCommentModalVisible, setIsCommentModalVisible] = useState(false);
   const [comment, setComment] = useState("");
   const [allCommentsVisible, setAllCommentsVisible] = useState(false);
+  const [idComment, setIdComment] = useState();
 
   const openCommentModal = (postId) => {
     setIsCommentModalVisible(true);
@@ -47,52 +48,69 @@ const HomeScreen = () => {
 
   const submitComment = (postId, userId, displayName, comment) => {
     addComment(postId, userId, displayName, comment);
-  };
-
-  const fetchPostsAndCheckLikes = async () => {
-    if (!userId) return;
-
-    const postsCollectionRef = query(
-      collection(firestore, "posts"),
-      orderBy("createdAt", "desc")
-    );
-
-    try {
-      const querySnapshot = await getDocs(postsCollectionRef);
-      const posts = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      const postsWithUserDetails = await Promise.all(
-        posts.map(async (post) => {
-          const userRef = doc(firestore, "users", post.userId);
-          const userSnap = await getDoc(userRef);
-          if (!userSnap.exists()) {
-            console.log("No such user!");
-            return post; // or handle this case as you see fit
-          }
-          const userData = userSnap.data();
-          return { ...post, ...userData };
-        })
-      );
-
-      const postsWithLikeStatus = await Promise.all(
-        postsWithUserDetails.map(async (post) => {
-          const isUserLiked = await checkIfUserLikedPost(post.id, userId);
-          return { ...post, isUserLiked };
-        })
-      );
-
-      setPosts(postsWithLikeStatus);
-    } catch (error) {
-      console.error("Error fetching posts: ", error);
-    }
+    setComment(null);
+    setIdComment(null);
   };
 
   useEffect(() => {
-    fetchPostsAndCheckLikes();
-  }, []);
+    const fetchPostsAndCheckLikes = async () => {
+      if (!userId) return;
+
+      const postsCollectionRef = query(
+        collection(firestore, "posts"),
+        orderBy("createdAt", "desc")
+      );
+
+      try {
+        const querySnapshot = await getDocs(postsCollectionRef);
+        const posts = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        console.log(posts);
+        const postsWithUserDetails = await Promise.all(
+          posts.map(async (post) => {
+            const userRef = doc(firestore, "users", post.userId);
+            const userSnap = await getDoc(userRef);
+            if (!userSnap.exists()) {
+              console.log("No such user!");
+              return post; // or handle this case as you see fit
+            }
+            const userData = userSnap.data();
+            return { ...post, ...userData };
+          })
+        );
+
+        const postsWithLikeStatus = await Promise.all(
+          postsWithUserDetails.map(async (post) => {
+            const isUserLiked = await checkIfUserLikedPost(post.id, userId);
+            return { ...post, isUserLiked };
+          })
+        );
+
+        setPosts(postsWithLikeStatus);
+      } catch (error) {
+        console.error("Error fetching posts: ", error);
+      }
+    };
+
+    const unsubscribe = onSnapshot(
+      collection(firestore, "posts"),
+      (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+          if (
+            change.type === "added" ||
+            change.type === "removed" ||
+            change.type === "modified"
+          ) {
+            fetchPostsAndCheckLikes();
+          }
+        });
+      }
+    );
+
+    return () => unsubscribe();
+  }, [userId]);
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -138,6 +156,7 @@ const HomeScreen = () => {
   };
 
   const setCloseAllCommentModal = () => {
+    setIdComment(null);
     setAllCommentsVisible(false);
   };
 
@@ -152,7 +171,8 @@ const HomeScreen = () => {
             <View className="bg-white flex rounded-md mt-4 p-2 space-y-2 pb-3">
               <View className="flex flex-row items-center justify-between">
                 <View className="flex flex-row gap-2 items-center">
-                  {item.profilePicture !== null ? (
+                  {item.profilePicture !== null &&
+                  item.profilePicture !== undefined ? (
                     <Image
                       className="w-14 h-14 rounded-full"
                       source={{ uri: item.profilePicture }}
@@ -182,7 +202,7 @@ const HomeScreen = () => {
               <View>
                 {item.photoUrl && (
                   <Image
-                    className="w-full h-60 rounded-2xl"
+                    className="w-full h-60 rounded-md"
                     source={{ uri: item.photoUrl }}
                     alt="profile image"
                   />
@@ -211,7 +231,12 @@ const HomeScreen = () => {
                     </Text>
                   </View>
                   <View className="flex flex-row gap-1 items-center">
-                    <Pressable onPress={() => openCommentModal(true)}>
+                    <Pressable
+                      onPress={() => {
+                        setIdComment(item.id);
+                        openCommentModal(true);
+                      }}
+                    >
                       <MaterialCommunityIcons
                         name="comment-processing-outline"
                         size={22}
@@ -224,7 +249,10 @@ const HomeScreen = () => {
                   (<Text>Henüz yorum yok</Text>)()
                 ) : (
                   <Pressable
-                    onPress={() => setAllCommentsVisible(!allCommentsVisible)}
+                    onPress={() => {
+                      setIdComment(item.id);
+                      setAllCommentsVisible(!allCommentsVisible);
+                    }}
                     className="flex"
                   >
                     <Text className="text-gray-500">
@@ -234,58 +262,55 @@ const HomeScreen = () => {
                   </Pressable>
                 )}
               </View>
-
-              {/* Create Comment Modal*/}
-              <Modal
-                visible={isCommentModalVisible}
-                animationType="slide"
-                transparent={true}
-              >
-                <View className="bottom-0 absolute bg-gray-200 h-[20%] w-full rounded-t-3xl p-4">
-                  <View className="flex flex-row">
-                    <TextInput
-                      className="flex-1"
-                      editable
-                      multiline
-                      numberOfLines={4}
-                      maxLength={150}
-                      placeholder="Yorum..."
-                      onChangeText={(text) => setComment(text)}
-                      value={comment}
-                      style={{ textAlignVertical: "top" }}
-                    />
-                    <Pressable onPress={() => setIsCommentModalVisible(false)}>
-                      <Entypo name="cross" size={24} color="black" />
-                    </Pressable>
-                  </View>
-                  <Pressable
-                    onPress={() => {
-                      submitComment(item.id, userId, displayName, comment);
-                      setIsCommentModalVisible(false);
-                    }}
-                    className="bg-blue-500 rounded-full w-8 h-8 flex items-center justify-center self-end"
-                  >
-                    <AntDesign name="arrowup" size={24} color="white" />
-                  </Pressable>
-                </View>
-              </Modal>
-
-              {allCommentsVisible && (
-                <Modal
-                  visible={allCommentsVisible}
-                  animationType="slide"
-                  transparent={true}
-                >
-                  <CommentsModal
-                    onClose={setCloseAllCommentModal}
-                    postId={item.id}
-                  />
-                </Modal>
-              )}
             </View>
           )}
           keyExtractor={(item) => item.id}
         />
+      )}
+
+      {/* Create Comment Modal*/}
+      <Modal
+        visible={isCommentModalVisible}
+        animationType="slide"
+        transparent={true}
+      >
+        <View className="bottom-0 absolute bg-gray-200 h-[20%] w-full rounded-t-3xl p-4">
+          <View className="flex flex-row">
+            <TextInput
+              className="flex-1"
+              editable
+              multiline
+              numberOfLines={4}
+              maxLength={150}
+              placeholder="Yorum..."
+              onChangeText={(text) => setComment(text)}
+              value={comment}
+              style={{ textAlignVertical: "top" }}
+            />
+            <Pressable onPress={() => setIsCommentModalVisible(false)}>
+              <Entypo name="cross" size={24} color="black" />
+            </Pressable>
+          </View>
+          <Pressable
+            onPress={() => {
+              submitComment(idComment, userId, displayName, comment);
+              setIsCommentModalVisible(false);
+            }}
+            className="bg-blue-500 rounded-full w-8 h-8 flex items-center justify-center self-end"
+          >
+            <AntDesign name="arrowup" size={24} color="white" />
+          </Pressable>
+        </View>
+      </Modal>
+
+      {allCommentsVisible && (
+        <Modal
+          visible={allCommentsVisible}
+          animationType="slide"
+          transparent={true}
+        >
+          <CommentsModal onClose={setCloseAllCommentModal} postId={idComment} />
+        </Modal>
       )}
     </View>
   );

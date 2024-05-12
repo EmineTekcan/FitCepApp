@@ -47,6 +47,18 @@ const postGonderi = async (
   }
 };
 
+const deletePost = async (postId) => {
+  const postDocRef = doc(firestore, "posts", postId);
+
+  try {
+    await deleteDoc(postDocRef);
+    console.log("Gönderi başarıyla silindi:", postId);
+  } catch (error) {
+    console.error("Gönderi silinirken bir hata oluştu:", error);
+  }
+};
+
+
 const getPostsWithUserDetails = async () => {
   // Postları çek
   const postsCollectionRef = query(collection(firestore, "posts"), orderBy("createdAt", "desc"));
@@ -169,7 +181,8 @@ export {
   checkIfUserLikedPost,
   addComment,
   deleteComment,
-  fetchUserPosts
+  fetchUserPosts,
+  deletePost
 };
 
 

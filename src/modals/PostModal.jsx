@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   modalImage: {
     width: 300,
     height: 300,
-    resizeMode: "cover",
+    resizeMode: "contain",
   },
   modalText: {},
   closeButton: {

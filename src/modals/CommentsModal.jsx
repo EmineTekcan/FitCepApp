@@ -6,7 +6,7 @@ import { AntDesign } from "@expo/vector-icons";
 
 const CommentsModal = ({ postId ,onClose}) => {
   const [comments, setComments] = useState([]);
-
+  console.log(postId)
   useEffect(() => {
     const fetchComments = async () => {
       const q = query(

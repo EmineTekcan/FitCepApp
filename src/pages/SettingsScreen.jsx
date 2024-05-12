@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ScrollView, StyleSheet} from 'react-native'
 import React from 'react'
 import { AntDesign } from '@expo/vector-icons';
 import { signOut } from 'firebase/auth'
@@ -7,7 +7,6 @@ import { Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { SimpleLineIcons } from '@expo/vector-icons';
-import { Feather } from '@expo/vector-icons';
 import SettingsItem from '../components/SettingsItem';
 
 const icons = [
