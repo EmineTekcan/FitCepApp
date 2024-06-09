@@ -157,14 +157,14 @@ const ProfileScreen = () => {
             className="flex flex-col items-center justify-center"
           >
             <Text className="text-2xl font-semibold">{followers}</Text>
-            <Text>followers</Text>
+            <Text>Takipçiler</Text>
           </Pressable>
           <Pressable
             onPress={getFollowingUsers}
             className="flex flex-col items-center justify-center"
           >
             <Text className="text-2xl font-semibold">{following}</Text>
-            <Text>following</Text>
+            <Text>Takip</Text>
           </Pressable>
         </View>
 
@@ -172,7 +172,7 @@ const ProfileScreen = () => {
           <Text className="text-lg font-semibold">{fullName}</Text>
           <Text>{username}</Text>
         </View>
-        <Text className="text-base font-semibold ml-2">Posts</Text>
+        <Text className="text-base font-semibold ml-2">Gönderiler</Text>
 
         <FlatList
           style={{ padding: 5 }}

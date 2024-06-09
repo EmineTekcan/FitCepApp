@@ -16,14 +16,14 @@ const ChangePassword = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Change Password</Text>
+      <Text style={styles.title}>Şifre Değiştir</Text>
       <TextInput
         style={styles.input}
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
       />
-      <Button title="Send Password Reset Email" onPress={handleChangePassword} />
+      <Button title="Şifre Sıfırlama E-postası Gönder" onPress={handleChangePassword} />
     </View>
   );
 };

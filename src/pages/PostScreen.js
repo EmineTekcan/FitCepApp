@@ -125,7 +125,7 @@ const PostScreen = () => {
 
       <Pressable
         onPress={createPost}
-        className="bg-blue-500 w-[30%] p-2 rounded-full self-center"
+        className="bg-orange-500 w-[30%] p-2 rounded-full self-center"
       >
         <Text className="text-white text-base text-center">Gönderi</Text>
       </Pressable>

@@ -3,9 +3,7 @@ import HomeScreen from "../pages/HomeScreen";
 import NotificationScreen from "../pages/NotificationScreen";
 import PostScreen from "../pages/PostScreen";
 import ProfileScreen from "../pages/ProfileScreen";
-import ProgressScreen from "../pages/ProgressScreen";
-import TodoPage from '../pages/TodoPage'
-
+import TodoPage from '../pages/TodoPage';
 import { Text, View, Pressable } from "react-native";
 import { colors } from "../utils/consts";
 import { Octicons } from "@expo/vector-icons";
@@ -23,7 +21,7 @@ const BottomNavigation = () => {
   const navigation = useNavigation();
 
   const navigateToPostScreen = () => {
-    navigation.navigate("PostScreen");
+    navigation.navigate("Gönderi Ekle");
   };
 
   return (
@@ -49,7 +47,7 @@ const BottomNavigation = () => {
             ) : (
               <Octicons name="home" size={22} color={color} />
             ),
-          title: "Logo",
+          title: "FitCep",
           headerRight: () => (
             <View className="pr-3 flex flex-row gap-4">
               <EvilIcons
@@ -72,7 +70,7 @@ const BottomNavigation = () => {
         name="TodoPage"
         component={TodoPage}
         options={{
-          title: "Progress",
+          title: "Planlarım",
           tabBarIcon: ({ focused, color }) =>
             focused ? (
               <Ionicons
@@ -86,7 +84,7 @@ const BottomNavigation = () => {
         }}
       />
       <Tab.Screen
-        name="PostScreen"
+        name="Gönderi Ekle"
         component={PostScreen}
         options={{
           tabBarIcon: () => (
@@ -126,10 +124,10 @@ const BottomNavigation = () => {
         }}
       />
       <Tab.Screen
-        name="NotificationScreen"
+        name="Bildirimler"
         component={NotificationScreen}
         options={{
-          title: "Notification",
+          title: "Bildirimler",
           tabBarIcon: ({ focused, color }) =>
             focused ? (
               <FontAwesome
@@ -160,7 +158,7 @@ const BottomNavigation = () => {
           headerTitleStyle: {
             color: "white",
           },
-          title: "Profile",
+          title: "Profil",
           tabBarIcon: ({ focused, color }) =>
             focused ? (
               <Ionicons

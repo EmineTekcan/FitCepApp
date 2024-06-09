@@ -15,7 +15,6 @@ import HelpScreen from "../pages/settings/HelpScreen";
 import NotificationSettingsScreen from "../pages/settings/NotificationSettingsScreen";
 import ProfileEditScreen from "../pages/settings/ProfileEditScreen";
 import PostScreen from "../pages/PostScreen";
-import ToDoScreen from "../utils/ToDoScreen";
 import Chat from "../components/Chat";
 import UserScreen from "../pages/UserScreen";
 import { colors } from "../utils/consts";
@@ -74,7 +73,7 @@ const RootNavigation = () => {
             }}
             component={MessagesScreen}
           />
-          <Stack.Screen name="MessageScreen" component={MessageScreen} />
+          <Stack.Screen name="Mesajlar" component={MessageScreen} />
           <Stack.Screen name="Chat" component={Chat} />
           <Stack.Screen
             options={{
@@ -123,7 +122,7 @@ const RootNavigation = () => {
             name="ProfileEditScreen"
             component={ProfileEditScreen}
           />
-          <Stack.Screen name="ToDoScreen" component={ToDoScreen} />
+          
         </>
       ) : (
         <>

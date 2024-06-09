@@ -20,7 +20,6 @@ import {
 } from "../services/firebase/Post";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, firestore } from "../../config/FirebaseConfig";
-import CommentModal from "../modals/CommentModal";
 import { TextInput } from "react-native-gesture-handler";
 import CommentsModal from "../modals/CommentsModal";
 import {
